@@ -8,49 +8,51 @@ import {
 
 export function activate(context: ExtensionContext) {
   function deleteIdenticalTabs() {
-    const tempListener = context.subscriptions.pop();
+    // const tempListener = context.subscriptions.pop()!;
     let activeFile = window.activeTextEditor?.document;
     let activeTabGroup = window.tabGroups.activeTabGroup;
 
-    function handleSingleLastTab() {
-      workspace
-        .getConfiguration("workbench.editor")
-        .update("revealIfOpen", true, ConfigurationTarget.Global);
-
-      if (!activeTabGroup.activeTab || !activeFile) {
-        return;
-      }
-
-      window.tabGroups.close(activeTabGroup.activeTab);
-
-      window.showTextDocument(activeFile);
-
-      workspace
-        .getConfiguration("workbench.editor")
-        .update("revealIfOpen", false, ConfigurationTarget.Global);
+    if (!activeFile || !activeTabGroup) {
+      return;
     }
+
+    // function handleSingleLastTab() {
+    //   workspace
+    //     .getConfiguration("workbench.editor")
+    //     .update("revealIfOpen", true, ConfigurationTarget.Global);
+
+    //   if (!activeTabGroup.activeTab || !activeFile) {
+    //     return;
+    //   }
+
+    //   window.tabGroups.close(activeTabGroup.activeTab);
+
+    //   window.showTextDocument(activeFile);
+
+    //   workspace
+    //     .getConfiguration("workbench.editor")
+    //     .update("revealIfOpen", false, ConfigurationTarget.Global);
+
+    //   return;
+    // }
 
     window.tabGroups.all.forEach((tabGroup) =>
       tabGroup.tabs.forEach((tab) => {
         let tabInput = tab.input as TabInputText;
 
-        if (!activeFile || !activeTabGroup) {
-          return;
-        }
-
         if (
-          tabInput.uri.path === activeFile.fileName &&
+          tabInput.uri.path === activeFile!.uri.path &&
           tabGroup !== activeTabGroup
         ) {
           if (tabGroup.tabs.length > 1) {
-            return window.tabGroups.close(tab);
+            window.tabGroups.close(tab);
           } else {
-            return handleSingleLastTab();
+            // handleSingleLastTab();
           }
         }
       })
     );
-    context.subscriptions.push(tempListener!);
+    // context.subscriptions.push(tempListener);
   }
 
   workspace
