@@ -1,22 +1,19 @@
-import { window, ExtensionContext } from "vscode";
+import { window, ExtensionContext, TabInputCustom, TabInputText } from "vscode";
 
 export function activate(context: ExtensionContext) {
   function deleteOtherSameTabs() {
-    let currentActiveFile = window.activeTextEditor?.document.fileName;
-    let currentTabGroup = window.tabGroups.activeTabGroup;
+    let activeFile = window.activeTextEditor?.document.fileName;
+    let activeTabGroup = window.tabGroups.activeTabGroup;
 
-    if (!currentActiveFile || !currentTabGroup) {
+    if (!activeFile || !activeTabGroup) {
       return;
     }
 
     window.tabGroups.all.forEach((tabGroup) =>
       tabGroup.tabs.forEach((tab) => {
-        let tabInfos = tab.input as any;
+        let tabInfos = tab.input as TabInputText;
 
-        if (
-          tabInfos.uri.path === currentActiveFile &&
-          tabGroup !== currentTabGroup
-        ) {
+        if (tabInfos.uri.path === activeFile && tabGroup !== activeTabGroup) {
           window.tabGroups.close(tab);
         }
       })
