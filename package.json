@@ -2,25 +2,23 @@
   "name": "auto-close-duplicate-file",
   "displayName": "Auto-Close Duplicate File",
   "description": "Auto-Close Duplicate File is an extension for VS Code that automatically closes the file in another window when you open the same file in another window. This extension is useful for developers who work on multi-screen projects.",
-  "version": "0.0.1",
+  "version": "1.0.0",
   "publisher": "julien-bessac",
   "engines": {
     "vscode": "^1.83.0"
   },
   "categories": [
-    "Other"
+    "Visualization","Other"
   ],
+  "icon": "images/logo-acdf-mini.png",
+  "pricing": "Free",
+  "license":"MIT",
   "activationEvents": [
     "onStartupFinished"
   ],
   "main": "./out/extension.js",
   "contributes": {
-    "commands": [
-      {
-        "command": "auto-close-duplicate-file.helloWorld",
-        "title": "Hello World"
-      }
-    ]
+    "commands": []
   },
   "scripts": {
     "vscode:prepublish": "npm run compile",
