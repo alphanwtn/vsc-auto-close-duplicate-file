@@ -7,8 +7,13 @@ import {
 } from "vscode";
 
 export function activate(context: ExtensionContext) {
+  function setRevealIfOpen(state: boolean) {
+    workspace
+      .getConfiguration("workbench.editor")
+      .update("revealIfOpen", state, ConfigurationTarget.Global);
+  }
+
   function deleteIdenticalTabs() {
-    const tempListener = context.subscriptions.pop()!;
     let activeFile = window.activeTextEditor?.document;
     let activeTabGroup = window.tabGroups.activeTabGroup;
 
@@ -16,51 +21,41 @@ export function activate(context: ExtensionContext) {
       return;
     }
 
-    function handleSingleLastTab() {
-      workspace
-        .getConfiguration("workbench.editor")
-        .update("revealIfOpen", true, ConfigurationTarget.Global);
-
-      if (!activeTabGroup.activeTab || !activeFile) {
-        return;
+    async function handleSingleTab() {
+      if (activeTabGroup.activeTab && activeFile) {
+        setRevealIfOpen(true);
+        await window.tabGroups.close(activeTabGroup.activeTab);
+        window.showTextDocument(activeFile);
+        setRevealIfOpen(false);
       }
-
-      window.tabGroups.close(activeTabGroup.activeTab);
-      // await workspace.openTextDocument(activeFile.fileName);
-      window.showTextDocument(activeFile);
-
-      workspace
-        .getConfiguration("workbench.editor")
-        .update("revealIfOpen", false, ConfigurationTarget.Global);
     }
 
-    window.tabGroups.all.forEach((tabGroup) =>
-      tabGroup.tabs.forEach((tab) => {
-        let tabInput = tab.input as TabInputText;
+    function searchAndCloseDuplicate() {
+      window.tabGroups.all.forEach((tabGroup) =>
+        tabGroup.tabs.forEach((tab) => {
+          let tabInput = tab.input as TabInputText;
 
-        if (
-          tabInput.uri.path === activeFile!.uri.path &&
-          tabGroup !== activeTabGroup
-        ) {
-          if (tabGroup.tabs.length > 1) {
-            window.tabGroups.close(tab);
-          } else {
-            handleSingleLastTab();
+          if (
+            tabInput.uri.path === activeFile!.uri.path &&
+            tabGroup !== activeTabGroup
+          ) {
+            if (tabGroup.tabs.length > 1) {
+              window.tabGroups.close(tab);
+            } else {
+              handleSingleTab();
+            }
           }
-        }
-      })
-    );
-    context.subscriptions.push(tempListener);
+        })
+      );
+    }
+
+    searchAndCloseDuplicate();
   }
 
-  workspace
-    .getConfiguration("workbench.editor")
-    .update("revealIfOpen", false, ConfigurationTarget.Global);
-
-  let listener = window.onDidChangeVisibleTextEditors((e) => {
-    window.showErrorMessage("Cycle");
+  let listener = window.onDidChangeVisibleTextEditors(() => {
     deleteIdenticalTabs();
   });
 
+  setRevealIfOpen(false);
   context.subscriptions.push(listener);
 }
