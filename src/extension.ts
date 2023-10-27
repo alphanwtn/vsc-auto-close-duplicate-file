@@ -8,7 +8,7 @@ import {
 
 export function activate(context: ExtensionContext) {
   function deleteIdenticalTabs() {
-    // const tempListener = context.subscriptions.pop()!;
+    const tempListener = context.subscriptions.pop()!;
     let activeFile = window.activeTextEditor?.document;
     let activeTabGroup = window.tabGroups.activeTabGroup;
 
@@ -16,25 +16,23 @@ export function activate(context: ExtensionContext) {
       return;
     }
 
-    // function handleSingleLastTab() {
-    //   workspace
-    //     .getConfiguration("workbench.editor")
-    //     .update("revealIfOpen", true, ConfigurationTarget.Global);
+    function handleSingleLastTab() {
+      workspace
+        .getConfiguration("workbench.editor")
+        .update("revealIfOpen", true, ConfigurationTarget.Global);
 
-    //   if (!activeTabGroup.activeTab || !activeFile) {
-    //     return;
-    //   }
+      if (!activeTabGroup.activeTab || !activeFile) {
+        return;
+      }
 
-    //   window.tabGroups.close(activeTabGroup.activeTab);
+      window.tabGroups.close(activeTabGroup.activeTab);
+      // await workspace.openTextDocument(activeFile.fileName);
+      window.showTextDocument(activeFile);
 
-    //   window.showTextDocument(activeFile);
-
-    //   workspace
-    //     .getConfiguration("workbench.editor")
-    //     .update("revealIfOpen", false, ConfigurationTarget.Global);
-
-    //   return;
-    // }
+      workspace
+        .getConfiguration("workbench.editor")
+        .update("revealIfOpen", false, ConfigurationTarget.Global);
+    }
 
     window.tabGroups.all.forEach((tabGroup) =>
       tabGroup.tabs.forEach((tab) => {
@@ -47,12 +45,12 @@ export function activate(context: ExtensionContext) {
           if (tabGroup.tabs.length > 1) {
             window.tabGroups.close(tab);
           } else {
-            // handleSingleLastTab();
+            handleSingleLastTab();
           }
         }
       })
     );
-    // context.subscriptions.push(tempListener);
+    context.subscriptions.push(tempListener);
   }
 
   workspace
